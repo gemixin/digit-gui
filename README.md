@@ -1,4 +1,4 @@
-# DIGIT-UI
+# DIGIT-GUI
 
 ## Overview
 A GUI created in TKinter for managing settings and viewing and capturing images from a single [DIGIT](https://digit.ml/) tactile sensor.
@@ -12,7 +12,10 @@ TKinter is already installed with Python as default, so the only dependency is t
 
 ### Running the GUI
 Clone this repository.
-Connect your DIGIT sensor via USB and simply run the **digit_ui.py** script.  
+Connect your DIGIT sensor via USB and simply run the **digit_gui.py** script.
+
+### Notes
+There is a bug with VGA mode in the [digit-interface library](https://github.com/facebookresearch/digit-interface) (see this [issue](https://github.com/facebookresearch/digit-interface/issues/10)) where the output is very glitchy. As such I would recommend only using QVGA mode.
 
 ## DIGIT Reference
 Mike Lambeta, Po-Wei Chou, Stephen Tian, Brian Yang, Benjamin Maloon, Victoria Rose Most, Dave Stroud, Raymond Santos, Ahmad Byagowi, Gregg Kammerer, Dinesh Jayaraman, Roberto Calandra.  

@@ -41,7 +41,7 @@ class DigitController:
         """
         Connect to the first available DIGIT device.
         Returns:
-            tuple: A tuple containing the Digit instance and its serial number.
+            tuple: A tuple containing the DIGIT instance and its serial number.
             (None, None): If no DIGIT devices are found or connection fails.
         """
         digits = self._check_for_digits()
@@ -69,7 +69,7 @@ class DigitController:
         based on the STREAMS dictionary
         """
         if self.digit:
-            # Get the STREAMS dictionary from the Digit instance
+            # Get the STREAMS dictionary
             stream_dict = self.digit.STREAMS
             # Iterate through the STREAMS dictionary to populate the lists
             for mode, mode_info in stream_dict.items():
@@ -213,7 +213,7 @@ class DigitController:
         return False
 
     def disconnect(self):
-        """Disconnect the DIGIT device if connected. Called by UI before exiting."""
+        """Disconnect the DIGIT device."""
         if self.digit:
             try:
                 self.digit.disconnect()
