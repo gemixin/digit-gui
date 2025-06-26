@@ -313,6 +313,7 @@ class DigitUI:
             self.dc.set_stream(prefs["stream_index"])
 
 
+# Main entry point for the application
 if __name__ == "__main__":
     root = tk.Tk()
     app = DigitUI(root)
