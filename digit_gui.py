@@ -36,6 +36,14 @@ class DigitGUI:
         # Set the update interval for video frames
         self.update_interval = 33  # Default to ~30 FPS if not set
 
+        # TODO: Remove these temp settings
+        self.save_root_dir = 'images'
+        self.save_dir = 'images'
+        self.num_frames = 50
+        self.interaction_num = 1
+        self.capturing = False
+        self.frame_count = 0
+
         # Set up the root window
         self.root.title("DIGIT GUI")
         self.root.geometry("640x480")
@@ -79,6 +87,16 @@ class DigitGUI:
                                                 padx=DEFAULT_PADDING, pady=DEFAULT_PADDING)
         self.create_live_preview_frame().grid(row=0, column=1,
                                               padx=DEFAULT_PADDING, pady=DEFAULT_PADDING)
+        # Create a button underneath the preview frame to save the current frame
+        self.save_button = tk.Button(self.root, text="Capture",
+                                command=self.test_save)
+        self.save_button.grid(row=1, column=1,
+                         padx=DEFAULT_PADDING, pady=DEFAULT_PADDING)
+        
+        # Create a label to display capture status
+        self.capture_status_label = tk.Label(self.root, text="Ready to capture")
+        self.capture_status_label.grid(row=1, column=0,
+                                       padx=DEFAULT_PADDING, pady=DEFAULT_PADDING)
 
         # Mark the GUI as created
         self.gui = True
@@ -87,6 +105,29 @@ class DigitGUI:
         prefs = self.load_prefs()
         self.apply_prefs(prefs)
 
+    def test_save(self):
+        if self.num_frames > 1:
+            # Create a folder in the save directory for this interaction
+            inum = self.pad_number(self.interaction_num)
+            interaction_folder = f"{self.save_root_dir}/interaction_{inum}"
+            os.makedirs(interaction_folder, exist_ok=True)
+            self.save_dir = interaction_folder
+        else:
+            self.save_dir = self.save_root_dir
+        self.disable_gui()
+        self.capturing = True
+        self.frame_count = 0
+
+    def pad_number(self, num):
+        """
+        Pad a number with leading zeros to ensure it is 3 digits.
+        Args:
+            num (int): The number to pad.
+        Returns:
+            str: The padded number as a string.
+        """
+        return str(num).zfill(3)
+    
     def create_digit_settings_frame(self):
         """
         Create the DIGIT settings frame with RGB intensity and stream controls.
@@ -200,6 +241,10 @@ class DigitGUI:
                 # Get the current video frame from DIGIT
                 frame = self.dc.get_frame()
                 if frame is not None:
+                    # If capturing frames, save the current frame
+                    if self.capturing:
+                        self.capture_frame(frame)
+                    # Display the current frame in the video label
                     # Convert frame (BGR to RGB)
                     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                     # Resize to 320x240
@@ -211,12 +256,35 @@ class DigitGUI:
                     self.video_label.config(image=self.photo)
 
                 # Schedule next update based on current FPS
-                self.root.after(self.update_interval, self.update_video_frame)
+                self.root.after(self.update_interval, self.update_video_frame)                
             except Exception as e:
                 # If an error occurs, disable the GUI and show a lost connection popup
                 print(f"Error updating video frame: {e}")
                 self.disable_gui()
                 self.show_lost_connection_popup()
+
+    def capture_complete(self):
+        # Stop capturing and reset frame count
+        self.capturing = False
+        self.frame_count = 0
+        self.interaction_num += 1
+        # Add delay of 1 second before resetting the label
+        self.root.after(1000, lambda: self.capture_status_label.config(text="Ready to capture"))
+        self.enable_gui()
+
+    def capture_frame(self, frame):
+        # Increment the frame count
+        self.frame_count += 1
+        self.capture_status_label.config(text=f"Capturing frame {self.frame_count}/{self.num_frames}")
+        if self.num_frames > 1:
+            fname = f"frame_{self.pad_number(self.frame_count)}"
+        else:
+            fname = f"interaction_{self.pad_number(self.interaction_num)}"            
+        cv2.imwrite(
+            f"{self.save_dir}/{fname}.jpg", frame)
+        # Check if we have captured enough frames
+        if self.frame_count >= self.num_frames:
+            self.capture_complete()
 
     def on_intensity_slider_change(self, value):
         """
@@ -285,12 +353,24 @@ class DigitGUI:
     def disable_gui(self):
         """Disable all GUI elements in the root window to prevent further interaction."""
         # Disable all widgets in the root window
-        for widget in self.root.winfo_children():
-            try:
-                widget.configure(state="disabled")
-            except Exception:
-                # Some widgets may not support the 'state' attribute
-                pass
+        # disable slider
+        if hasattr(self, 'intensity_slider'):
+            self.intensity_slider.configure(state="disabled")
+        if hasattr(self, 'stream_combobox'):
+            self.stream_combobox.configure(state="disabled")
+        if hasattr(self, 'save_button'):
+            self.save_button.configure(state="disabled")
+    
+    def enable_gui(self):
+        """Enable all GUI elements in the root window to allow interaction."""
+        # Enable all widgets in the root window
+        if hasattr(self, 'intensity_slider'):
+            self.intensity_slider.configure(state="normal")
+        if hasattr(self, 'stream_combobox'):
+            self.stream_combobox.configure(state="normal")
+        if hasattr(self, 'save_button'):
+            self.save_button.configure(state="normal")
+
 
     def save_prefs(self):
         """Save user preferences to a JSON file."""
