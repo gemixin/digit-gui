@@ -20,7 +20,7 @@ class DigitController:
         # Lists of available stream data
         self.stream_strings = []  # Combobox text e.g. "VGA 30fps"
         self.mode_options = []  # VGA or QVGA
-        self.fps_options = []  # FPS int values e.g. 15, 30, 60
+        self.fps_options = []  # Frames per second int values e.g. 15, 30, 60
         self.resolutions = []  # Resolution dicts e.g. {'width': 640, 'height': 480}
         self._populate_stream_lists()
 
@@ -137,9 +137,9 @@ class DigitController:
 
     def get_fps(self):
         """
-        Get the current frames per second (FPS) e.g. 15, 30 or 60.
+        Get the current frames per second (fps) e.g. 15, 30 or 60.
         Returns:
-            int: The current FPS if available, None otherwise.
+            int: The current fps if available, None otherwise.
         """
         if self.digit:
             return self.digit.fps
@@ -168,7 +168,7 @@ class DigitController:
     # --- Public setters/actions ---
     def set_stream(self, index):
         """
-        Set the stream mode, FPS, and resolution based on the index of the chosen
+        Set the stream mode, fps, and resolution based on the index of the chosen
         stream string from the combobox.
         Args:
             index (int): The index of the selected stream string in the combobox.
