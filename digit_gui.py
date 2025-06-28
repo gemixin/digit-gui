@@ -46,8 +46,13 @@ class DigitGUI:
 
         # Set up the root window
         self.root.title("DIGIT GUI")
-        # self.root.geometry("640x480")
         self.root.resizable(False, False)
+
+        # Create an empty frame to give initial window some size
+        # This frame will be replaced once the GUI is set up
+        self.empty_frame = tk.Frame(self.root, width=400, height=400)
+        self.empty_frame.grid(row=0, column=0, padx=PADDING, pady=PADDING)
+        self.empty_frame.grid_propagate(False)
 
         # Try and connect to DIGIT
         self.try_connect_digit()
@@ -58,12 +63,17 @@ class DigitGUI:
     # --- Initialization & Setup ---
     def setup_gui(self):
         """Set up the main GUI components after a successful connection to DIGIT."""
+        # Delete empty frame to make space for the GUI
+        self.empty_frame.destroy()
+
         # Create and place the main frames
         self.create_digit_settings_frame().grid(row=0, column=0,
                                                 padx=PADDING, pady=PADDING)
         self.create_live_preview_frame().grid(row=0, column=1,
                                               padx=PADDING, pady=PADDING)
         self.create_capture_controls_frame().grid(row=1, column=1,
+                                                  padx=PADDING, pady=PADDING)
+        self.create_capture_settings_frame().grid(row=1, column=0,
                                                   padx=PADDING, pady=PADDING)
 
         # Mark the GUI as created
@@ -75,9 +85,9 @@ class DigitGUI:
 
     def create_digit_settings_frame(self):
         """
-        Create the DIGIT settings frame with RGB intensity and stream controls.
+        Create the DIGIT settings frame with RGB intensity and stream combobox.
         Returns:
-            tk.LabelFrame: The settings frame containing the controls.
+            tk.LabelFrame: The settings frame.
         """
         # Create a LabelFrame for whole section
         digit_settings_frame = tk.LabelFrame(self.root,
@@ -158,7 +168,7 @@ class DigitGUI:
         """
         Create the live preview frame to display the video feed from DIGIT.
         Returns:
-            tk.LabelFrame: The live preview frame containing the video feed.
+            tk.LabelFrame: The live preview frame.
         """
         # Create a LabelFrame for whole section
         live_preview_frame = tk.LabelFrame(self.root,
@@ -179,6 +189,11 @@ class DigitGUI:
         return live_preview_frame
 
     def create_capture_controls_frame(self):
+        """
+        Create the capture controls frame with button and status label.
+        Returns:
+            tk.LabelFrame: The capture controls frame.
+        """
         # Create a LabelFrame for whole section
         capture_controls_frame = tk.LabelFrame(self.root,
                                                text="Capture Controls",
@@ -201,6 +216,22 @@ class DigitGUI:
         self.save_button.pack(pady=PADDING, padx=PADDING, fill='x')
         self.capture_status_label.pack(pady=PADDING, padx=PADDING)
         return capture_controls_frame
+
+    def create_capture_settings_frame(self):
+        # Create a LabelFrame for whole section
+        capture_settings_frame = tk.LabelFrame(self.root,
+                                               text="Capture Settings",
+                                               borderwidth=2, relief="groove")
+        # Create a frame for the save directory selection
+        save_dir_frame = tk.Frame(capture_settings_frame)
+
+        # Pack the frames into the settings frame with padding
+        save_dir_frame.pack(pady=PADDING, padx=PADDING)
+
+        return capture_settings_frame
+
+    def select_save_directory(self):
+        print("Button test")
 
     # --- Connection Handling ---
     def try_connect_digit(self):
@@ -284,7 +315,8 @@ class DigitGUI:
         prefs = {
             "intensity": self.dc.get_intensity(),
             "stream_index": self.stream_combobox.current(),
-            # Add more preferences as needed
+            "interaction_num": self.interaction_num,
+            "user_save_dir": self.user_save_dir,
         }
         with open(USER_PREFS_FILE, "w") as f:
             json.dump(prefs, f)
@@ -316,6 +348,14 @@ class DigitGUI:
             self.stream_combobox.current(prefs["stream_index"])
             self.dc.set_stream(prefs["stream_index"])
             self.refresh_update_interval()
+        if "interaction_num" in prefs:
+            # Set the interaction number
+            # TODO: update the GUI element
+            self.interaction_num = prefs["interaction_num"]
+        if "user_save_dir" in prefs:
+            # Set the user save directory
+            # TODO: update the GUI element
+            self.user_save_dir = prefs["user_save_dir"]
 
     # --- Live Preview & Video ---
     def update_video_frame(self):
