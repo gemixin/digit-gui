@@ -1,24 +1,51 @@
 # DIGIT-GUI
 
 ## Overview
-A GUI created in TKinter for managing settings and viewing and capturing images from a single [DIGIT](https://digit.ml/) tactile sensor.
 
-## Usage Instructions
-### Requirements
-As TKinter and Anaconda have compatibility issues on Linux, it's best to create a regular Python virtual environment to run this GUI.
+**DIGIT-GUI** is a graphical user interface built with **Tkinter** for managing settings and capturing images from a single [DIGIT](https://digit.ml/) tactile sensor.
 
-TKinter is already installed with Python as default, so the only dependency is the [digit-interface library](https://github.com/facebookresearch/digit-interface), which you can install via pip using:  
-`pip install digit-interface`
+## Requirements
 
-### Running the GUI
-Clone this repository.
-Connect your DIGIT sensor via USB and simply run the **digit_gui.py** script.
+- **Operating System:** Linux only (DIGIT sensors are supported on Linux only)  
+- **Tested Environment:** Ubuntu 22.04, Python 3.13  
+- **Python Environment:** Use a regular Python virtual environment (Tkinter and Anaconda have compatibility issues on Linux)
 
-### Notes
-There is a bug with VGA mode in the [digit-interface library](https://github.com/facebookresearch/digit-interface) (see this [issue](https://github.com/facebookresearch/digit-interface/issues/10)) where the output is very glitchy. As such I would recommend only using QVGA mode.
+## Installation
 
-## DIGIT Reference
-Mike Lambeta, Po-Wei Chou, Stephen Tian, Brian Yang, Benjamin Maloon, Victoria Rose Most, Dave Stroud, Raymond Santos, Ahmad Byagowi, Gregg Kammerer, Dinesh Jayaraman, Roberto Calandra.  
-“DIGIT: A Novel Design for a Low-Cost Compact High-Resolution Tactile Sensor with Application to In-Hand Manipulation.”  
-IEEE Robotics and Automation Letters (RA-L), vol. 5, no. 3, pp. 3838–3845, 2020.  
-https://doi.org/10.1109/LRA.2020.2977257
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/gemixin/digit-gui.git
+   cd digit-gui
+
+2. **(Optional) Set up a virtual environment:** 
+    ```bash
+    python3 -m venv venv
+    source venv/bin/activate
+
+3. **Install the required package:**  
+    Tkinter is included with Python by default. Install the DIGIT interface library:
+    ```bash
+    pip install digit-interface
+
+## Running the GUI
+
+1. Connect your DIGIT sensor via USB.
+
+2. Run the GUI script:
+    ```bash
+    python digit_gui.py
+
+## Known Issues
+- **VGA Mode Bug**:
+The [digit-interface](https://github.com/facebookresearch/digit-interface) library has a known issue with VGA mode producing glitchy output.  
+  See [issue #10](https://github.com/facebookresearch/digit-interface/issues/10).  
+  ✅ **Recommendation:** Stick to **QVGA mode** for reliable operation.
+
+## Citation
+
+If you use DIGIT or this repo in your research, please cite:
+
+**DIGIT: A Novel Design for a Low-Cost Compact High-Resolution Tactile Sensor with Application to In-Hand Manipulation**  
+Mike Lambeta, Po-Wei Chou, Stephen Tian, Brian Yang, Benjamin Maloon, Victoria Rose Most, Dave Stroud, Raymond Santos, Ahmad Byagowi, Gregg Kammerer, Dinesh Jayaraman, Roberto Calandra  
+_IEEE Robotics and Automation Letters (RA-L), vol. 5, no. 3, pp. 3838–3845, 2020_  
+[https://doi.org/10.1109/LRA.2020.2977257](https://doi.org/10.1109/LRA.2020.2977257)
