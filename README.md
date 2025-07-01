@@ -2,7 +2,16 @@
 
 ## Overview
 
-**DIGIT-GUI** is a graphical user interface built with **Tkinter** for managing settings and capturing images from a single [DIGIT](https://digit.ml/) tactile sensor.
+**DIGIT-GUI** is a user-friendly graphical interface for configuring and capturing data from a single [DIGIT](https://digit.ml/) tactile sensor. Built with **Tkinter**, it provides an accessible way to:
+
+- Adjust sensor RGB LED intensity and video stream mode.
+- Preview live tactile images in real time.
+- Select the number of frames and interaction number for organised data collection.
+- Choose and manage the save directory for captured images.
+- Capture and save single frames or batches of frames with a single click.
+- Automatically save and restore user preferences.
+
+![DIGIT-GUI Screenshot](screenshot.png)
 
 ## Requirements
 
@@ -34,6 +43,13 @@
 2. Run the GUI script:
     ```bash
     python digit_gui.py
+
+Notes for usage:
+- Changes you make to settings will automatically be saved.
+- The default save directory is the local directory.
+- The maximum number of frames to capture at once is 600 (10 seconds at 60fps) but this can be changed in the code if you wish.
+- The maximum interaction number is 9999.
+- The interaction number automatically increments after each capture, but can always be manually set as well.
 
 ## Known Issues
 - **VGA Mode Bug**:

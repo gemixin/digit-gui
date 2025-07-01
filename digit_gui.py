@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, filedialog
 from PIL import Image, ImageTk
 import cv2
 from digit_controller import DigitController
@@ -18,6 +18,8 @@ PADDING = 10
 USER_PREFS_FILE = "user_prefs.json"
 GREEN = "honeydew"
 RED = "misty rose"
+MAX_NUM_FRAMES = 600
+MAX_INTERACTION_NUM = 9999
 
 
 class DigitGUI:
@@ -41,7 +43,7 @@ class DigitGUI:
         self.local_dir = os.path.dirname(os.path.abspath(__file__))
         self.user_save_dir = self.local_dir
         self.save_dir = self.user_save_dir
-        self.num_frames = 10
+        self.num_frames = 1
         self.interaction_num = 1
 
         # Set up the root window
@@ -66,15 +68,20 @@ class DigitGUI:
         # Delete empty frame to make space for the GUI
         self.empty_frame.destroy()
 
+        # Configure grid weights to allow horizontal expansion
+        self.root.grid_columnconfigure(0, weight=1)
+        self.root.grid_columnconfigure(1, weight=1)
+        self.root.grid_rowconfigure(2, weight=1)
+
         # Create and place the main frames
-        self.create_digit_settings_frame().grid(row=0, column=0,
-                                                padx=PADDING, pady=PADDING)
-        self.create_live_preview_frame().grid(row=0, column=1,
-                                              padx=PADDING, pady=PADDING)
-        self.create_capture_controls_frame().grid(row=1, column=1,
-                                                  padx=PADDING, pady=PADDING)
-        self.create_capture_settings_frame().grid(row=1, column=0,
-                                                  padx=PADDING, pady=PADDING)
+        self.create_settings_frame().grid(row=0, column=0,
+                                          padx=PADDING, pady=PADDING, sticky='nsew')
+        self.create_live_preview_frame().grid(row=0, column=1, rowspan=2,
+                                              padx=PADDING, pady=PADDING, sticky='nsew')
+        self.create_capture_controls_frame().grid(row=1, column=0,
+                                                  padx=PADDING, pady=PADDING, sticky='nsew')
+        self.create_save_dir_frame().grid(row=2, column=0, columnspan=2,
+                                          padx=PADDING, pady=PADDING, sticky='ew')
 
         # Mark the GUI as created
         self.gui = True
@@ -83,30 +90,27 @@ class DigitGUI:
         prefs = self.load_prefs()
         self.apply_prefs(prefs)
 
-    def create_digit_settings_frame(self):
+    def create_settings_frame(self):
         """
-        Create the DIGIT settings frame with RGB intensity and stream combobox.
+        Create the settings frame with various components for user adjustable settings.
         Returns:
             tk.LabelFrame: The settings frame.
         """
         # Create a LabelFrame for whole section
-        digit_settings_frame = tk.LabelFrame(self.root,
-                                             text="DIGIT Settings",
-                                             borderwidth=2, relief="groove")
+        settings_frame = tk.LabelFrame(self.root,
+                                       text="Settings",
+                                       borderwidth=2, relief="groove")
 
         # --- RGB intensity components ---
-        # Create frame for intensity label and slider elements
-        intensity_frame = tk.Frame(digit_settings_frame)
-
         # Create the label
-        intensity_label = tk.Label(intensity_frame, text="RGB Intensity:")
+        intensity_label = tk.Label(settings_frame, text="RGB Intensity:")
 
         # Get the min and max intensity values from the DigitController
         min_intensity = self.dc.get_min_intensity()
         max_intensity = self.dc.get_max_intensity()
 
         # Create the slider with the range of min to max intensity
-        self.intensity_slider = tk.Scale(intensity_frame,
+        self.intensity_slider = tk.Scale(settings_frame,
                                          from_=min_intensity,  # 0
                                          to=max_intensity,  # 15
                                          orient=tk.HORIZONTAL,
@@ -119,21 +123,15 @@ class DigitGUI:
         intensity_val = intensity_val // 263
         # Set initial slider value to current intensity
         self.intensity_slider.set(intensity_val)
-
-        # Pack the components into the intensity frame
-        intensity_label.pack()
-        self.intensity_slider.pack()
         # ---------------------------------
 
         # --- Stream mode components ---
-        # Create frame for stream label and slider elements
-        stream_frame = tk.Frame(digit_settings_frame)
-
         # Create the label
-        stream_label = tk.Label(stream_frame, text="Stream Mode:")
+        stream_label = tk.Label(settings_frame, text="Stream Mode:")
 
         # Create the combobox with stream options from DigitController
-        self.stream_combobox = ttk.Combobox(stream_frame,
+        self.stream_combobox = ttk.Combobox(settings_frame,
+                                            width=10,
                                             values=self.dc.get_stream_strings(),
                                             state="readonly")
 
@@ -151,18 +149,60 @@ class DigitGUI:
 
         # Bind the combobox selection change event
         self.stream_combobox.bind("<<ComboboxSelected>>", self.on_stream_combobox_change)
-
-        # Pack the components into the stream frame
-        stream_label.pack()
-        self.stream_combobox.pack()
         # ---------------------------------
 
-        # Pack the frames into the settings frame with padding
-        intensity_frame.pack(pady=PADDING, padx=PADDING)
-        stream_frame.pack(pady=PADDING, padx=PADDING)
+        # --- Number of frames components ---
+        # Create label
+        num_frames_label = tk.Label(settings_frame,
+                                    text="Number of Frames:")
+
+        # Create the Spinbox to allow user to select number of frames
+        num_frames_validator = (self.root.register(self.validate_num_frames), '%P')
+        self.num_frames_spinbox = tk.Spinbox(
+            settings_frame,
+            width=4,
+            from_=1, to=MAX_NUM_FRAMES,
+            validate="key",
+            validatecommand=num_frames_validator
+        )
+        # ---------------------------------
+
+        # --- Interaction number components ---
+        # Create label
+        interaction_num_label = tk.Label(settings_frame,
+                                         text="Interaction Number:")
+        # Create a Spinbox to allow user to select interaction number
+        interaction_num_validator = (self.root.register(
+            self.validate_interaction_num), '%P')
+        self.interaction_num_spinbox = tk.Spinbox(
+            settings_frame,
+            width=4,
+            from_=1, to=MAX_INTERACTION_NUM,
+            validate="key",
+            validatecommand=interaction_num_validator
+        )
+        # ---------------------------------
+
+        # Place the frames into the settings frame, aligning them to the left
+        intensity_label.grid(row=0, column=0, sticky='ws',
+                             padx=PADDING, pady=PADDING)  # Align to bottom of slider
+        self.intensity_slider.grid(row=0, column=1, sticky='w',
+                                   padx=PADDING/2, pady=PADDING)
+        stream_label.grid(row=1, column=0, sticky='w',
+                          padx=PADDING, pady=PADDING)
+        self.stream_combobox.grid(row=1, column=1, sticky='w',
+                                  padx=PADDING/2, pady=PADDING)
+        num_frames_label.grid(row=2, column=0, sticky='w',
+                              padx=PADDING, pady=PADDING)
+        self.num_frames_spinbox.grid(row=2, column=1, sticky='w',
+                                     padx=PADDING/2, pady=PADDING)
+        interaction_num_label.grid(row=3, column=0, sticky='w',
+                                   padx=PADDING, pady=PADDING)
+        self.interaction_num_spinbox.grid(row=3, column=1, sticky='w',
+                                          padx=PADDING/2, pady=PADDING)
 
         # Return the settings frame to be placed in the main GUI
-        return digit_settings_frame
+        return settings_frame
 
     def create_live_preview_frame(self):
         """
@@ -178,8 +218,9 @@ class DigitGUI:
         # Create a label to display the video feed
         self.video_label = tk.Label(live_preview_frame)
 
-        # Pack the label into the live_view frame with padding
-        self.video_label.pack(padx=PADDING, pady=PADDING)
+        # Center the label in the live_view frame
+        self.video_label.pack(padx=PADDING, pady=PADDING,
+                              anchor='center', expand=True)
 
         # Start the live video view
         self.view_running = True
@@ -190,7 +231,7 @@ class DigitGUI:
 
     def create_capture_controls_frame(self):
         """
-        Create the capture controls frame with button and status label.
+        Create the capture controls frame with label and button.
         Returns:
             tk.LabelFrame: The capture controls frame.
         """
@@ -199,41 +240,64 @@ class DigitGUI:
                                                text="Capture Controls",
                                                borderwidth=2, relief="groove")
 
+        # Create a label to display capture status
+        self.capture_status_label = tk.Label(capture_controls_frame,
+                                             text="Ready to capture",
+                                             width=30, height=4,
+                                             border=1, relief="sunken",
+                                             bg=GREEN)
+
         # Create a button to start capturing frames
         self.save_button = tk.Button(capture_controls_frame,
                                      text="Capture",
                                      command=self.start_capture)
 
-        # Create a label to display capture status
-        self.capture_status_label = tk.Label(capture_controls_frame,
-                                             text="Ready to capture",
-                                             width=26, height=4,
-                                             border=1, relief="sunken",
-                                             bg=GREEN)
-
-        # Pack the button and label into the capture controls frame with padding
+        # Pack the frames and elements into the capture controls frame with padding
+        self.capture_status_label.pack(pady=PADDING, padx=PADDING)
         # Ensure button fills the width
         self.save_button.pack(pady=PADDING, padx=PADDING, fill='x')
-        self.capture_status_label.pack(pady=PADDING, padx=PADDING)
+
+        # Return the capture controls frame to be placed in the main GUI
         return capture_controls_frame
 
-    def create_capture_settings_frame(self):
+    def create_save_dir_frame(self):
+        """
+        Create the save directory frame with entry box and button.
+        Returns:
+            tk.LabelFrame: The save directory frame.
+        """
         # Create a LabelFrame for whole section
-        capture_settings_frame = tk.LabelFrame(self.root,
-                                               text="Capture Settings",
-                                               borderwidth=2, relief="groove")
-        # Create a frame for the save directory selection
-        save_dir_frame = tk.Frame(capture_settings_frame)
+        save_dir_frame = tk.LabelFrame(self.root,
+                                       text="Save Directory",
+                                       borderwidth=2, relief="groove")
 
-        # Pack the frames into the settings frame with padding
-        save_dir_frame.pack(pady=PADDING, padx=PADDING)
+        # Create an entry box to display the save directory
+        self.save_dir_entry = tk.Entry(save_dir_frame)
 
-        return capture_settings_frame
+        # Set the initial save directory to the user save directory
+        self.save_dir_entry.insert(0, self.user_save_dir)
 
-    def select_save_directory(self):
-        print("Button test")
+        # Make readonly by default
+        self.save_dir_entry.configure(state='disabled')
+
+        # Create a button to select the save directory
+        self.save_dir_button = tk.Button(save_dir_frame,
+                                         text="Select Directory",
+                                         command=self.select_save_directory)
+
+        # Pack the components into the save directory frame with padding
+        # Ensure entry fills the width
+        self.save_dir_entry.grid(row=0, column=0,
+                                 sticky='ew',
+                                 padx=PADDING, pady=PADDING)
+        self.save_dir_button.grid(row=0, column=1,
+                                  padx=PADDING, pady=PADDING)
+        save_dir_frame.columnconfigure(0, weight=1)
+
+        return save_dir_frame
 
     # --- Connection Handling ---
+
     def try_connect_digit(self):
         """Try to connect to the DIGIT device. If it fails, show a popup."""
         # Create a DigitController instance to find and connect to the DIGIT device
@@ -302,12 +366,18 @@ class DigitGUI:
         self.intensity_slider.configure(state="normal")
         self.stream_combobox.configure(state="normal")
         self.save_button.configure(state="normal")
+        self.num_frames_spinbox.configure(state="normal")
+        self.interaction_num_spinbox.configure(state="normal")
+        self.save_dir_button.configure(state='normal')
 
     def disable_gui(self):
         """Disable interactive GUI elements."""
         self.intensity_slider.configure(state="disabled")
         self.stream_combobox.configure(state="disabled")
         self.save_button.configure(state="disabled")
+        self.num_frames_spinbox.configure(state="disabled")
+        self.interaction_num_spinbox.configure(state="disabled")
+        self.save_dir_button.configure(state='disabled')
 
     # --- Preferences ---
     def save_prefs(self):
@@ -315,6 +385,7 @@ class DigitGUI:
         prefs = {
             "intensity": self.dc.get_intensity(),
             "stream_index": self.stream_combobox.current(),
+            "num_frames": self.num_frames,
             "interaction_num": self.interaction_num,
             "user_save_dir": self.user_save_dir,
         }
@@ -348,14 +419,18 @@ class DigitGUI:
             self.stream_combobox.current(prefs["stream_index"])
             self.dc.set_stream(prefs["stream_index"])
             self.refresh_update_interval()
+        if "num_frames" in prefs:
+            # Set the number of frames to capture
+            self.num_frames = prefs["num_frames"]
+            self.refresh_num_frames_spinbox()
         if "interaction_num" in prefs:
             # Set the interaction number
-            # TODO: update the GUI element
             self.interaction_num = prefs["interaction_num"]
+            self.refresh_interaction_num_spinbox()
         if "user_save_dir" in prefs:
             # Set the user save directory
-            # TODO: update the GUI element
             self.user_save_dir = prefs["user_save_dir"]
+            self.refresh_save_dir_entry()
 
     # --- Live Preview & Video ---
     def update_video_frame(self):
@@ -393,7 +468,7 @@ class DigitGUI:
         fps = self.dc.get_fps()
         self.update_interval = 1000 // fps
 
-    # --- User Interactions (Sliders, Combobox) ---
+    # --- User Interactions ---
     def on_intensity_slider_change(self, value):
         """
         Handle the slider change event to set the RGB intensity.
@@ -415,23 +490,105 @@ class DigitGUI:
             # Refresh update interval based on new fps
             self.refresh_update_interval()
 
+    def select_save_directory(self):
+        """
+        Open a file dialog to select the save directory and update the entry box.
+        """
+        # Open a directory selection dialog
+        selected_dir = filedialog.askdirectory(initialdir=self.user_save_dir,
+                                               title="Select Save Directory")
+        # If a directory was selected
+        if selected_dir:
+            # Update the user save directory
+            self.user_save_dir = selected_dir
+            # Update the entry box with the new save directory
+            self.refresh_save_dir_entry()
+
+    def refresh_save_dir_entry(self):
+        """Refresh the save directory entry box with the current user save directory."""
+        # Allow temporary editing of the save directory entry
+        self.save_dir_entry.configure(state='normal')
+        # Update the entry box with the new save directory
+        self.save_dir_entry.delete(0, tk.END)
+        self.save_dir_entry.insert(0, self.user_save_dir)
+        # Disable the entry box again
+        self.save_dir_entry.configure(state='disabled')
+
+    def validate_num_frames(self, value):
+        """
+        Validate the input for the number of frames spinbox, and if valid, update the
+        number of frames.
+        Args:
+            value (str): The value to validate.
+        Returns:
+            bool: True if valid, False otherwise.
+        """
+        # Allow empty input for editing
+        if value == "":
+            return True
+        if value.isdigit():
+            # Convert the value to an integer
+            num = int(value)
+            # Check if the number is within the valid range
+            if 1 <= num <= MAX_NUM_FRAMES:
+                # If valid, update the number of frames
+                self.num_frames = num
+                return True
+        # If not valid, return False
+        return False
+
+    def validate_interaction_num(self, value):
+        """
+        Validate the input for the interaction number spinbox and if valid, update the
+        interaction number.
+        Args:
+            value (str): The value to validate.
+        Returns:
+            bool: True if valid, False otherwise.
+        """
+        # Allow empty input for editing
+        if value == "":
+            return True
+        if value.isdigit():
+            # Convert the value to an integer
+            num = int(value)
+            # Check if the number is within the valid range
+            if 1 <= num <= MAX_INTERACTION_NUM:
+                # If valid, update the interaction number
+                self.interaction_num = num
+                return True
+        # If not valid, return False
+        return False
+
+    def refresh_num_frames_spinbox(self):
+        """Refresh the number of frames spinbox with the current number of frames."""
+        self.num_frames_spinbox.delete(0, "end")
+        self.num_frames_spinbox.insert(0, self.num_frames)
+
+    def refresh_interaction_num_spinbox(self):
+        """Refresh the interaction number spinbox with the current interaction number."""
+        self.interaction_num_spinbox.delete(0, "end")
+        self.interaction_num_spinbox.insert(0, self.interaction_num)
+
     # --- Capture Logic ---
     def start_capture(self):
         """Start capturing frames based on user settings."""
         # Disable the interactive parts of the GUI
         self.disable_gui()
 
+        # Always get the current save directory for this capture
+        self.save_dir = self.get_save_dir()
+
         # Check user save directory exists
         if not os.path.exists(self.save_dir):
             # If it does not exist, show an error message
+            print(self.save_dir)
             self.capture_status_label.config(
                 text="Capture failed:\nSave directory does not exist", bg=RED)
             # Reset after 2 seconds
             self.root.after(2000, self.capture_complete_final)
         else:
             # If the save directory exists, proceed with capture
-            # Get the save directory
-            self.save_dir = self.get_save_dir()
             # Reset the frame count
             self.frame_count = 0
             # Set the capture flag to True so it starts capturing frames
@@ -496,7 +653,15 @@ class DigitGUI:
         # Reset the frame count
         self.frame_count = 0
         # Increment the interaction number
-        self.interaction_num += 1
+        if self.interaction_num < MAX_INTERACTION_NUM:
+            # Temporarily enable the interaction number spinbox for editing
+            self.interaction_num_spinbox.configure(state='normal')
+            # Increment the interaction number
+            self.interaction_num += 1
+            # Refresh the interaction number spinbox to show the new value
+            self.refresh_interaction_num_spinbox()
+            # Disable the spinbox again
+            self.interaction_num_spinbox.configure(state='disabled')
         # After a delay, call the capture complete message
         self.root.after(500, self.capture_complete_message)
 
@@ -515,15 +680,16 @@ class DigitGUI:
         self.enable_gui()
 
     # --- Utility ---
+
     def pad_number(self, num):
         """
-        Pad a number with leading zeros to ensure it is 3 digits.
+        Pad a number with leading zeros to ensure it is 4 digits.
         Args:
             num (int): The number to pad.
         Returns:
             str: The padded number as a string.
         """
-        return str(num).zfill(3)
+        return str(num).zfill(4)
 
 
 # Main entry point for the application
