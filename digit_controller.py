@@ -21,7 +21,7 @@ class DigitController:
         self.stream_strings = []  # Combobox text e.g. "VGA 30fps"
         self.mode_options = []  # VGA or QVGA
         self.fps_options = []  # Frames per second int values e.g. 15, 30, 60
-        self.resolutions = []  # Resolution dicts e.g. {'width': 640, 'height': 480}
+        self.resolutions = []  # Resolution dicts e.g. {"width": 640, "height": 480}
         self._populate_stream_lists()
 
     # --- Private helpers ---
@@ -48,7 +48,7 @@ class DigitController:
         if digits:
             try:
                 # Get the first digit's serial number
-                serial = digits[0]['serial']
+                serial = digits[0]["serial"]
                 # Create a Digit instance with the serial number
                 digit = Digit(serial, "Single_Digit")
                 # Connect to the DIGIT device
@@ -73,12 +73,12 @@ class DigitController:
             stream_dict = self.digit.STREAMS
             # Iterate through the STREAMS dictionary to populate the lists
             for mode, mode_info in stream_dict.items():
-                for _, fps_value in mode_info['fps'].items():
+                for _, fps_value in mode_info["fps"].items():
                     stream_string = f"{mode} {fps_value}fps"
                     self.stream_strings.append(stream_string)
                     self.mode_options.append(mode)
                     self.fps_options.append(fps_value)
-                    self.resolutions.append(mode_info['resolution'])
+                    self.resolutions.append(mode_info["resolution"])
 
     # --- Public getters ---
     def get_stream_strings(self):
@@ -111,7 +111,7 @@ class DigitController:
 
     def get_stream_mode(self):
         """
-        Get the current stream mode e.g. 'VGA' or 'QVGA'.
+        Get the current stream mode e.g. "VGA" or "QVGA".
         Returns:
             str: The current stream mode if available, None otherwise.
         """
@@ -127,7 +127,7 @@ class DigitController:
 
     def get_resolution(self):
         """
-        Get the current resolution e.g. {'width': 640, 'height': 480}.
+        Get the current resolution e.g. {"width": 640, "height": 480}.
         Returns:
             dict: The current resolution if available, None otherwise.
         """
