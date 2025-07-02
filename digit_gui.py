@@ -717,6 +717,11 @@ class DigitGUI:
             return self.user_save_dir
 
     def capture_frame(self, frame):
+        """
+        Capture a single frame and save it to the specified directory.
+        Args:
+            frame (numpy.ndarray): The frame to capture.
+        """
         # Increment the frame count
         self.frame_count += 1
         # Update the capture status label with the current frame count
@@ -730,6 +735,11 @@ class DigitGUI:
             self.capture_complete()
 
     def save_frame_file(self, frame):
+        """
+        Save the captured frame to a file in the specified save directory.
+        Args:
+            frame (numpy.ndarray): The frame to save.
+        """
         # Save the frame
         # If we are capturing multiple frames, use the frame count to name the file
         if self.num_frames > 1:
