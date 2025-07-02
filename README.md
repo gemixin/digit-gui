@@ -17,7 +17,7 @@
 ## Requirements
 
 - **Operating System:** Linux only (DIGIT sensors are supported on Linux only)  
-- **Tested Environment:** Ubuntu 22.04, Python 3.13  
+- **Tested Environment:** Ubuntu 22.04, Python 3.10.12 
 - **Python Environment:** Use a regular Python virtual environment (Tkinter and Anaconda have compatibility issues on Linux)
 
 ## Installation
