@@ -20,6 +20,7 @@ GREEN = "honeydew"
 RED = "misty rose"
 MAX_NUM_FRAMES = 600
 MAX_INTERACTION_NUM = 9999
+MAX_COUNTDOWN_SECS = 10
 
 
 class DigitGUI:
@@ -45,6 +46,8 @@ class DigitGUI:
         self.save_dir = self.user_save_dir
         self.num_frames = 1
         self.interaction_num = 1
+        self.countdown_secs = 1
+        self.countdown = False
 
         # Set up the root window
         self.root.title("DIGIT GUI")
@@ -103,7 +106,7 @@ class DigitGUI:
 
         # --- RGB intensity components ---
         # Create the label
-        intensity_label = tk.Label(settings_frame, text="RGB Intensity:")
+        intensity_label = tk.Label(settings_frame, text="RGB Intensity")
 
         # Get the min and max intensity values from the DigitController
         min_intensity = self.dc.get_min_intensity()
@@ -127,7 +130,7 @@ class DigitGUI:
 
         # --- Stream mode components ---
         # Create the label
-        stream_label = tk.Label(settings_frame, text="Stream Mode:")
+        stream_label = tk.Label(settings_frame, text="Stream Mode")
 
         # Create the combobox with stream options from DigitController
         self.stream_combobox = ttk.Combobox(settings_frame,
@@ -154,7 +157,7 @@ class DigitGUI:
         # --- Number of frames components ---
         # Create label
         num_frames_label = tk.Label(settings_frame,
-                                    text="Number of Frames:")
+                                    text="Number of Frames to Capture")
 
         # Create the Spinbox to allow user to select number of frames
         num_frames_validator = (self.root.register(self.validate_num_frames), '%P')
@@ -170,7 +173,7 @@ class DigitGUI:
         # --- Interaction number components ---
         # Create label
         interaction_num_label = tk.Label(settings_frame,
-                                         text="Interaction Number:")
+                                         text="Interaction Number")
         # Create a Spinbox to allow user to select interaction number
         interaction_num_validator = (self.root.register(
             self.validate_interaction_num), '%P')
@@ -180,6 +183,22 @@ class DigitGUI:
             from_=1, to=MAX_INTERACTION_NUM,
             validate="key",
             validatecommand=interaction_num_validator
+        )
+        # ---------------------------------
+
+        # --- Countdown seconds components ---
+        # Create label
+        countdown_secs_label = tk.Label(settings_frame,
+                                        text="Countdown Seconds")
+        # Create a Spinbox to allow user to select interaction number
+        countdown_secs_validator = (self.root.register(
+            self.validate_countdown_secs), '%P')
+        self.countdown_secs_spinbox = tk.Spinbox(
+            settings_frame,
+            width=4,
+            from_=1, to=MAX_COUNTDOWN_SECS,
+            validate="key",
+            validatecommand=countdown_secs_validator
         )
         # ---------------------------------
 
@@ -200,6 +219,10 @@ class DigitGUI:
                                    padx=PADDING, pady=PADDING)
         self.interaction_num_spinbox.grid(row=3, column=1, sticky='w',
                                           padx=PADDING/2, pady=PADDING)
+        countdown_secs_label.grid(row=4, column=0, sticky='w',
+                                  padx=PADDING, pady=PADDING)
+        self.countdown_secs_spinbox.grid(row=4, column=1, sticky='w',
+                                         padx=PADDING/2, pady=PADDING)
 
         # Return the settings frame to be placed in the main GUI
         return settings_frame
@@ -252,9 +275,21 @@ class DigitGUI:
                                      text="Capture",
                                      command=self.start_capture)
 
+        # Create a checkbox to enable countdown before capturing
+        # Create a BooleanVar to track countdown checkbox state
+        self.countdown_var = tk.BooleanVar(value=False)
+        # Update the countdown attribute when the checkbox is toggled
+        self.countdown_checkbox = tk.Checkbutton(
+            capture_controls_frame,
+            text="Countdown",
+            variable=self.countdown_var,
+            command=lambda: setattr(self, 'countdown', self.countdown_var.get())
+        )
+
         # Pack the frames and elements into the capture controls frame with padding
-        self.capture_status_label.pack(pady=PADDING, padx=PADDING)
-        # Ensure button fills the width
+        self.capture_status_label.pack(pady=PADDING, padx=PADDING, fill='x')
+        self.countdown_checkbox.pack(side=tk.LEFT, pady=PADDING, padx=PADDING, anchor='w')
+        # Ensure button fills the remaining width
         self.save_button.pack(pady=PADDING, padx=PADDING, fill='x')
 
         # Return the capture controls frame to be placed in the main GUI
@@ -368,6 +403,7 @@ class DigitGUI:
         self.save_button.configure(state="normal")
         self.num_frames_spinbox.configure(state="normal")
         self.interaction_num_spinbox.configure(state="normal")
+        self.countdown_secs_spinbox.configure(state="normal")
         self.save_dir_button.configure(state='normal')
 
     def disable_gui(self):
@@ -377,6 +413,7 @@ class DigitGUI:
         self.save_button.configure(state="disabled")
         self.num_frames_spinbox.configure(state="disabled")
         self.interaction_num_spinbox.configure(state="disabled")
+        self.countdown_secs_spinbox.configure(state="disabled")
         self.save_dir_button.configure(state='disabled')
 
     # --- Preferences ---
@@ -387,6 +424,8 @@ class DigitGUI:
             "stream_index": self.stream_combobox.current(),
             "num_frames": self.num_frames,
             "interaction_num": self.interaction_num,
+            "countdown_secs": self.countdown_secs,
+            "countdown": self.countdown,
             "user_save_dir": self.user_save_dir,
         }
         with open(USER_PREFS_FILE, "w") as f:
@@ -427,6 +466,14 @@ class DigitGUI:
             # Set the interaction number
             self.interaction_num = prefs["interaction_num"]
             self.refresh_interaction_num_spinbox()
+        if "countdown_secs" in prefs:
+            # Set the countdown seconds
+            self.countdown_secs = prefs["countdown_secs"]
+            self.refresh_countdown_secs_spinbox()
+        if "countdown" in prefs:
+            # Set the countdown toggle
+            self.countdown = prefs["countdown"]
+            self.countdown_var.set(self.countdown)
         if "user_save_dir" in prefs:
             # Set the user save directory
             self.user_save_dir = prefs["user_save_dir"]
@@ -560,6 +607,29 @@ class DigitGUI:
         # If not valid, return False
         return False
 
+    def validate_countdown_secs(self, value):
+        """
+        Validate the input for the countdown seconds spinbox and if valid, update the
+        countdown seconds.
+        Args:
+            value (str): The value to validate.
+        Returns:
+            bool: True if valid, False otherwise.
+        """
+        # Allow empty input for editing
+        if value == "":
+            return True
+        if value.isdigit():
+            # Convert the value to an integer
+            num = int(value)
+            # Check if the number is within the valid range
+            if 1 <= num <= MAX_COUNTDOWN_SECS:
+                # If valid, update the countdown seconds
+                self.countdown_secs = num
+                return True
+        # If not valid, return False
+        return False
+
     def refresh_num_frames_spinbox(self):
         """Refresh the number of frames spinbox with the current number of frames."""
         self.num_frames_spinbox.delete(0, "end")
@@ -569,6 +639,11 @@ class DigitGUI:
         """Refresh the interaction number spinbox with the current interaction number."""
         self.interaction_num_spinbox.delete(0, "end")
         self.interaction_num_spinbox.insert(0, self.interaction_num)
+
+    def refresh_countdown_secs_spinbox(self):
+        """Refresh the countdown seconds spinbox with the current countdown seconds."""
+        self.countdown_secs_spinbox.delete(0, "end")
+        self.countdown_secs_spinbox.insert(0, self.countdown_secs)
 
     # --- Capture Logic ---
     def start_capture(self):
@@ -587,11 +662,33 @@ class DigitGUI:
                 text="Capture failed:\nSave directory does not exist", bg=RED)
             # Reset after 2 seconds
             self.root.after(2000, self.capture_complete_final)
+        # If the save directory exists, proceed with capture
         else:
-            # If the save directory exists, proceed with capture
-            # Reset the frame count
+            # If countdown is enabled, start the countdown
+            if (self.countdown):
+                self.start_countdown(self.countdown_secs)
+            # If countdown is not enabled, start capturing immediately
+            else:
+                # Reset the frame count
+                self.frame_count = 0
+                # Set the capture flag to True so it starts capturing frames
+                self.capturing = True
+
+    def start_countdown(self, seconds):
+        """
+        Start a countdown timer for the specified number of seconds.
+        Args:
+            seconds (int): The number of seconds to count down from.
+        """
+        # Update the capture status label with the countdown
+        self.capture_status_label.config(
+            text=f"Capturing in {seconds} seconds...")
+        # If there are more than 0 seconds left, schedule the next countdown
+        if seconds > 0:
+            self.root.after(1000, lambda: self.start_countdown(seconds - 1))
+        else:
+            # When countdown reaches 0, start capturing frames
             self.frame_count = 0
-            # Set the capture flag to True so it starts capturing frames
             self.capturing = True
 
     def get_save_dir(self):

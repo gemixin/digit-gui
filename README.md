@@ -8,6 +8,7 @@
 - Preview live tactile images in real time.
 - Select the number of frames and interaction number for organised data collection.
 - Choose and manage the save directory for captured images.
+- Set a countdown timer before capturing starts.
 - Capture and save single frames or batches of frames with a single click.
 - Automatically save and restore user preferences.
 
@@ -47,9 +48,10 @@
 Notes for usage:
 - Changes you make to settings will automatically be saved.
 - The default save directory is the local directory.
-- The maximum number of frames to capture at once is 600 (10 seconds at 60fps) but this can be changed in the code if you wish.
+- The maximum number of frames to capture at once is 600 (10 seconds at 60fps) (can be changed in the code if you wish).
 - The maximum interaction number is 9999.
 - The interaction number automatically increments after each capture, but can always be manually set as well.
+- The maximum number of seconds for the countdown timer is 10 (can be changed in the code if you wish).
 
 ## Known Issues
 - **VGA Mode Bug**:
