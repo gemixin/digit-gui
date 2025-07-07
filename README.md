@@ -19,6 +19,7 @@
 - **Operating System:** Linux only (DIGIT sensors are supported on Linux only)  
 - **Tested Environment:** Ubuntu 22.04, Python 3.10.12 
 - **Python Environment:** Use a regular Python virtual environment (Tkinter and Anaconda have compatibility issues on Linux)
+- **Packages:** [digit-interface](https://github.com/facebookresearch/digit-interface), [pillow](https://pypi.org/project/pillow/)
 
 ## Installation
 
@@ -32,10 +33,10 @@
     python3 -m venv venv
     source venv/bin/activate
 
-3. **Install the required package:**  
-    Tkinter is included with Python by default. Install the DIGIT interface library:
+3. **Install the required packages:**  
+    Tkinter is included with Python by default. Install the DIGIT interface library and Pillow:
     ```bash
-    pip install digit-interface
+    pip install -r requirements.txt
 
 ## Running the GUI
 
