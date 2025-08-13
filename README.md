@@ -44,7 +44,7 @@
 
 2. Run the GUI script:
     ```bash
-    python digit_gui.py
+    python3 digit_gui.py
 
 Notes for usage:
 - Changes you make to settings will automatically be saved.
