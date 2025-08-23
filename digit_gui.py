@@ -1,9 +1,3 @@
-'''
-Author: Gemma McLean
-Date: May 2025
-A class for creating a user interface for the DIGIT device using Tkinter.
-'''
-
 import tkinter as tk
 from tkinter import ttk, filedialog
 from PIL import Image, ImageTk
@@ -12,7 +6,6 @@ from digit_controller import DigitController
 from digit_popup import DigitPopup
 import json
 import os
-
 
 # Constants
 PADDING = 10
@@ -25,12 +18,21 @@ MAX_COUNTDOWN_SECS = 10
 
 
 class DigitGUI:
+    """
+    A class for creating a user interface for the DIGIT device using Tkinter.
+
+    Author: Gemma McLean
+    Date: May 2025
+    """
+
     def __init__(self, root):
-        '''
+        """
         Initialise the Digit GUI application.
+
         Args:
             root (tk.Tk): The root window for the application.
-        '''
+        """
+
         # Initialise DigitController and root window
         self.dc = None
         self.root = root
@@ -68,7 +70,8 @@ class DigitGUI:
 
     # --- Initialization & Setup ---
     def setup_gui(self):
-        '''Set up the main GUI components after a successful connection to DIGIT.'''
+        """Set up the main GUI components after a successful connection to DIGIT."""
+
         # Delete empty frame to make space for the GUI
         self.empty_frame.destroy()
 
@@ -95,11 +98,13 @@ class DigitGUI:
         self.apply_prefs(prefs)
 
     def create_settings_frame(self):
-        '''
+        """
         Create the settings frame with various components for user adjustable settings.
+
         Returns:
             tk.LabelFrame: The settings frame.
-        '''
+        """
+
         # Create a LabelFrame for whole section
         settings_frame = tk.LabelFrame(self.root,
                                        text='Settings',
@@ -229,11 +234,13 @@ class DigitGUI:
         return settings_frame
 
     def create_live_preview_frame(self):
-        '''
+        """
         Create the live preview frame to display the video feed from DIGIT.
+
         Returns:
             tk.LabelFrame: The live preview frame.
-        '''
+        """
+
         # Create a LabelFrame for whole section
         live_preview_frame = tk.LabelFrame(self.root,
                                            text='Live Preview',
@@ -254,11 +261,13 @@ class DigitGUI:
         return live_preview_frame
 
     def create_capture_controls_frame(self):
-        '''
+        """
         Create the capture controls frame with label and button.
+
         Returns:
             tk.LabelFrame: The capture controls frame.
-        '''
+        """
+
         # Create a LabelFrame for whole section
         capture_controls_frame = tk.LabelFrame(self.root,
                                                text='Capture Controls',
@@ -297,11 +306,13 @@ class DigitGUI:
         return capture_controls_frame
 
     def create_save_dir_frame(self):
-        '''
+        """
         Create the save directory frame with entry box and button.
+
         Returns:
             tk.LabelFrame: The save directory frame.
-        '''
+        """
+
         # Create a LabelFrame for whole section
         save_dir_frame = tk.LabelFrame(self.root,
                                        text='Save Directory',
@@ -335,7 +346,8 @@ class DigitGUI:
     # --- Connection Handling ---
 
     def try_connect_digit(self):
-        '''Try to connect to the DIGIT device. If it fails, show a popup.'''
+        """Try to connect to the DIGIT device. If it fails, show a popup."""
+
         # Create a DigitController instance to find and connect to the DIGIT device
         self.dc = DigitController()
         # Check if the DIGIT device is connected
@@ -347,7 +359,8 @@ class DigitGUI:
             self.setup_gui()
 
     def show_connection_failed_popup(self):
-        '''Show a popup window if the connection fails with options to retry or exit.'''
+        """Show a popup window if the connection fails with options to retry or exit."""
+
         # Create and display the failed connection popup
         failed_popup = DigitPopup(
             self.root,
@@ -362,17 +375,20 @@ class DigitGUI:
         failed_popup.protocol('WM_DELETE_WINDOW', self.close_app)
 
     def retry_connection(self, popup):
-        '''
+        """
         Retry the connection to DIGIT and close the popup.
+
         Args:
             popup (DigitPopup): The popup window to close.
-        '''
+        """
+
         # Close the popup window and try to connect again
         popup.destroy()
         self.try_connect_digit()
 
     def show_lost_connection_popup(self):
-        '''Show a popup window when the connection to DIGIT is lost.'''
+        """Show a popup window when the connection to DIGIT is lost."""
+
         # Create and display the lost connection popup
         lost_popup = DigitPopup(
             self.root,
@@ -384,7 +400,8 @@ class DigitGUI:
         lost_popup.protocol('WM_DELETE_WINDOW', self.close_app)
 
     def close_app(self):
-        '''Handle the application close event.'''
+        """Handle the application close event."""
+
         # If the GUI has been created, save user preferences
         if self.gui:
             self.save_prefs()
@@ -398,7 +415,8 @@ class DigitGUI:
 
     # --- GUI State Management ---
     def enable_gui(self):
-        '''Enable interactive GUI elements.'''
+        """Enable interactive GUI elements."""
+
         self.intensity_slider.configure(state='normal')
         self.stream_combobox.configure(state='normal')
         self.save_button.configure(state='normal')
@@ -408,7 +426,8 @@ class DigitGUI:
         self.save_dir_button.configure(state='normal')
 
     def disable_gui(self):
-        '''Disable interactive GUI elements.'''
+        """Disable interactive GUI elements."""
+
         self.intensity_slider.configure(state='disabled')
         self.stream_combobox.configure(state='disabled')
         self.save_button.configure(state='disabled')
@@ -419,7 +438,8 @@ class DigitGUI:
 
     # --- Preferences ---
     def save_prefs(self):
-        '''Save user preferences to a JSON file.'''
+        """Save user preferences to a JSON file."""
+
         prefs = {
             'intensity': self.dc.get_intensity(),
             'stream_index': self.stream_combobox.current(),
@@ -433,11 +453,13 @@ class DigitGUI:
             json.dump(prefs, f)
 
     def load_prefs(self):
-        '''
+        """
         Load user preferences from a JSON file.
+
         Returns:
             dict: The loaded preferences, or an empty dict if the file does not exist.
-        '''
+        """
+
         if os.path.exists(USER_PREFS_FILE):
             with open(USER_PREFS_FILE, 'r') as f:
                 prefs = json.load(f)
@@ -445,11 +467,13 @@ class DigitGUI:
         return {}
 
     def apply_prefs(self, prefs):
-        '''
+        """
         Apply loaded preferences to the GUI.
+
         Args:
             prefs (dict): The preferences to apply.
-        '''
+        """
+
         if 'intensity' in prefs:
             # Set the slider and device intensity
             self.intensity_slider.set(prefs['intensity'] // 263)
@@ -482,7 +506,8 @@ class DigitGUI:
 
     # --- Live Preview & Video ---
     def update_video_frame(self):
-        '''Update the video frame in the live preview.'''
+        """Update the video frame in the live preview."""
+
         # If the live view is running
         if self.view_running:
             try:
@@ -512,26 +537,31 @@ class DigitGUI:
                 self.show_lost_connection_popup()
 
     def refresh_update_interval(self):
-        '''Refresh the live view update interval based on current fps.'''
+        """Refresh the live view update interval based on current fps."""
+
         fps = self.dc.get_fps()
         self.update_interval = 1000 // fps
 
     # --- User Interactions ---
     def on_intensity_slider_change(self, value):
-        '''
+        """
         Handle the slider change event to set the RGB intensity.
+
         Args:
             value (str): The new value of the slider as a string.
-        '''
+        """
+
         # Convert the slider value to an integer and set the intensity
         self.dc.set_intensity(int(value))
 
     def on_stream_combobox_change(self, event):
-        '''
+        """
         Handle the combobox selection change event.
+
         Args:
             event (tk.Event): The event triggered by the combobox selection change.
-        '''
+        """
+
         # Set the stream based on the selected index in the combobox
         success = self.dc.set_stream(self.stream_combobox.current())
         if success:
@@ -539,9 +569,10 @@ class DigitGUI:
             self.refresh_update_interval()
 
     def select_save_directory(self):
-        '''
+        """
         Open a file dialog to select the save directory and update the entry box.
-        '''
+        """
+
         # Open a directory selection dialog
         selected_dir = filedialog.askdirectory(initialdir=self.user_save_dir,
                                                title='Select Save Directory',
@@ -554,7 +585,8 @@ class DigitGUI:
             self.refresh_save_dir_entry()
 
     def refresh_save_dir_entry(self):
-        '''Refresh the save directory entry box with the current user save directory.'''
+        """Refresh the save directory entry box with the current user save directory."""
+
         # Allow temporary editing of the save directory entry
         self.save_dir_entry.configure(state='normal')
         # Update the entry box with the new save directory
@@ -564,14 +596,16 @@ class DigitGUI:
         self.save_dir_entry.configure(state='disabled')
 
     def validate_num_frames(self, value):
-        '''
+        """
         Validate the input for the number of frames spinbox, and if valid, update the
         number of frames.
+
         Args:
             value (str): The value to validate.
         Returns:
             bool: True if valid, False otherwise.
-        '''
+        """
+
         # Allow empty input for editing
         if value == '':
             return True
@@ -587,14 +621,16 @@ class DigitGUI:
         return False
 
     def validate_interaction_num(self, value):
-        '''
+        """
         Validate the input for the interaction number spinbox and if valid, update the
         interaction number.
+
         Args:
             value (str): The value to validate.
         Returns:
             bool: True if valid, False otherwise.
-        '''
+        """
+
         # Allow empty input for editing
         if value == '':
             return True
@@ -610,14 +646,16 @@ class DigitGUI:
         return False
 
     def validate_countdown_secs(self, value):
-        '''
+        """
         Validate the input for the countdown seconds spinbox and if valid, update the
         countdown seconds.
+
         Args:
             value (str): The value to validate.
         Returns:
             bool: True if valid, False otherwise.
-        '''
+        """
+
         # Allow empty input for editing
         if value == '':
             return True
@@ -633,23 +671,27 @@ class DigitGUI:
         return False
 
     def refresh_num_frames_spinbox(self):
-        '''Refresh the number of frames spinbox with the current number of frames.'''
+        """Refresh the number of frames spinbox with the current number of frames."""
+
         self.num_frames_spinbox.delete(0, 'end')
         self.num_frames_spinbox.insert(0, self.num_frames)
 
     def refresh_interaction_num_spinbox(self):
-        '''Refresh the interaction number spinbox with the current interaction number.'''
+        """Refresh the interaction number spinbox with the current interaction number."""
+
         self.interaction_num_spinbox.delete(0, 'end')
         self.interaction_num_spinbox.insert(0, self.interaction_num)
 
     def refresh_countdown_secs_spinbox(self):
-        '''Refresh the countdown seconds spinbox with the current countdown seconds.'''
+        """Refresh the countdown seconds spinbox with the current countdown seconds."""
+
         self.countdown_secs_spinbox.delete(0, 'end')
         self.countdown_secs_spinbox.insert(0, self.countdown_secs)
 
     # --- Capture Logic ---
     def start_capture(self):
-        '''Start capturing frames based on user settings.'''
+        """Start capturing frames based on user settings."""
+
         # Disable the interactive parts of the GUI
         self.disable_gui()
 
@@ -677,11 +719,13 @@ class DigitGUI:
                 self.capturing = True
 
     def start_countdown(self, seconds):
-        '''
+        """
         Start a countdown timer for the specified number of seconds.
+
         Args:
             seconds (int): The number of seconds to count down from.
-        '''
+        """
+
         # Update the capture status label with the countdown
         self.capture_status_label.config(
             text=f'Capturing in {seconds} seconds...')
@@ -694,11 +738,13 @@ class DigitGUI:
             self.capturing = True
 
     def get_save_dir(self):
-        '''
+        """
         Get the directory where frames will be saved based on user settings.
+
         Returns:
             str: The directory path where frames will be saved.
-        '''
+        """
+
         # If we are capturing multiple frames
         if self.num_frames > 1:
             # Create a folder in the save directory for this interaction
@@ -719,11 +765,13 @@ class DigitGUI:
             return self.user_save_dir
 
     def capture_frame(self, frame):
-        '''
+        """
         Capture a single frame and save it to the specified directory.
+
         Args:
             frame (numpy.ndarray): The frame to capture.
-        '''
+        """
+
         # Increment the frame count
         self.frame_count += 1
         # Update the capture status label with the current frame count
@@ -737,11 +785,13 @@ class DigitGUI:
             self.capture_complete()
 
     def save_frame_file(self, frame):
-        '''
+        """
         Save the captured frame to a file in the specified save directory.
+
         Args:
             frame (numpy.ndarray): The frame to save.
-        '''
+        """
+
         # Save the frame
         # If we are capturing multiple frames, use the frame count to name the file
         if self.num_frames > 1:
@@ -756,7 +806,8 @@ class DigitGUI:
             print(f'Error saving file: {e}')
 
     def capture_complete(self):
-        '''Start completion of the capture process.'''
+        """Start completion of the capture process."""
+
         # Set the capture flag to False so it stops capturing frames
         self.capturing = False
         # Reset the frame count
@@ -775,14 +826,16 @@ class DigitGUI:
         self.root.after(500, self.capture_complete_message)
 
     def capture_complete_message(self):
-        '''Show a message indicating capture completion.'''
+        """Show a message indicating capture completion."""
+
         # Set the capture status label
         self.capture_status_label.config(text='Capture complete!')
         # After a delay, call the final completion function
         self.root.after(1000, self.capture_complete_final)
 
     def capture_complete_final(self):
-        '''Reset the capture process.'''
+        """Reset the capture process."""
+
         # Reset the capture status label
         self.capture_status_label.config(text='Ready to capture', bg=GREEN)
         # Enable the interactive parts of the GUI
@@ -791,13 +844,15 @@ class DigitGUI:
     # --- Utility ---
 
     def pad_number(self, num):
-        '''
+        """
         Pad a number with leading zeros to ensure it is 4 digits.
+
         Args:
             num (int): The number to pad.
         Returns:
             str: The padded number as a string.
-        '''
+        """
+
         return str(num).zfill(4)
 
 

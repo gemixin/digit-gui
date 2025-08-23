@@ -1,22 +1,25 @@
-'''
-Author: Gemma McLean
-Date: June 2025
-A class for creating a popup window in a Tkinter application.
-'''
-
 import tkinter as tk
 
 
 class DigitPopup(tk.Toplevel):
+    """
+    A class for creating a popup window in a Tkinter application.
+
+    Author: Gemma McLean
+    Date: June 2025
+    """
+
     def __init__(self, parent, title, message, buttons):
-        '''
+        """
         Initialise the DigitPopup with a title, message, and buttons.
+
         Args:
             parent (tk.Tk): The parent window for the popup.
             title (str): The title of the popup window.
             message (str): The message to display in the popup.
             buttons (list of tuples): A list of button text and command pairs.
-        '''
+        """
+
         # Ensure the parent is a Tk instance
         super().__init__(parent)
 

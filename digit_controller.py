@@ -1,19 +1,21 @@
-'''
-Author: Gemma McLean
-Date: June 2025
-A controller class for managing the DIGIT device connection and operations.
-'''
-
 from digit_interface.digit import Digit
 from digit_interface.digit_handler import DigitHandler
 
 
 class DigitController:
+    """
+    A controller class for managing the DIGIT device connection and operations.
+
+    Author: Gemma McLean
+    Date: June 2025
+    """
+
     def __init__(self):
-        '''
+        """
         Initialise the DigitController to manage DIGIT connections and streams.
         Auto connects to the first available DIGIT device.
-        '''
+        """
+
         # Connect and store the instance and serial number
         self.digit, self.serial = self._connect_to_digit()
 
@@ -26,24 +28,26 @@ class DigitController:
 
     # --- Private helpers ---
     def _check_for_digits(self):
-        '''
+        """
         Check for connected DIGIT devices.
         Returns:
             list: A list of dictionaries containing DIGIT device information.
             None: If no DIGIT devices are found.
-        '''
+        """
+
         digits = DigitHandler.list_digits()
         if digits:
             return digits
         return None
 
     def _connect_to_digit(self):
-        '''
+        """
         Connect to the first available DIGIT device.
         Returns:
             tuple: A tuple containing the DIGIT instance and its serial number.
             (None, None): If no DIGIT devices are found or connection fails.
-        '''
+        """
+
         digits = self._check_for_digits()
         if digits:
             try:
@@ -64,10 +68,11 @@ class DigitController:
             return None, None
 
     def _populate_stream_lists(self):
-        '''
+        """
         Populate the stream strings, mode options, fps options, and resolutions lists
         based on the STREAMS dictionary
-        '''
+        """
+
         if self.digit:
             # Get the STREAMS dictionary
             stream_dict = self.digit.STREAMS
@@ -82,39 +87,47 @@ class DigitController:
 
     # --- Public getters ---
     def get_stream_strings(self):
-        '''
+        """
         Get the list of stream strings for the combobox.
+
         Returns:
             list: A list of stream strings formatted as 'VGA 30fps', 'QVGA 60fps', etc.
-        '''
+        """
+
         return self.stream_strings
 
     def get_max_intensity(self):
-        '''
+        """
         Get the maximum intensity value.
+
         Returns:
             int: The maximum intensity value if available, None otherwise.
-        '''
+        """
+
         if self.digit:
             return self.digit.LIGHTING_MAX
         return None
 
     def get_min_intensity(self):
-        '''
+        """
         Get the minimum intensity value.
+
         Returns:
             int: The minimum intensity value if available, None otherwise.
-        '''
+        """
+
         if self.digit:
             return self.digit.LIGHTING_MIN
         return None
 
     def get_stream_mode(self):
-        '''
+        """
         Get the current stream mode e.g. 'VGA' or 'QVGA'.
+
         Returns:
             str: The current stream mode if available, None otherwise.
-        '''
+        """
+
         if self.digit:
             # Get resolution
             res = self.digit.resolution
@@ -126,55 +139,65 @@ class DigitController:
         return None
 
     def get_resolution(self):
-        '''
+        """
         Get the current resolution e.g. {'width': 640, 'height': 480}.
+
         Returns:
             dict: The current resolution if available, None otherwise.
-        '''
+        """
+
         if self.digit:
             return self.digit.resolution
         return None
 
     def get_fps(self):
-        '''
+        """
         Get the current frames per second (fps) e.g. 15, 30 or 60.
+
         Returns:
             int: The current fps if available, None otherwise.
-        '''
+        """
+
         if self.digit:
             return self.digit.fps
         return None
 
     def get_intensity(self):
-        '''
+        """
         Get the current intensity.
+
         Returns:
             int: The current intensity value if available, None otherwise.
-        '''
+        """
+
         if self.digit:
             return self.digit.intensity
         return None
 
     def get_frame(self):
-        '''
+        """
         Get the current video frame from the DIGIT device.
+
         Returns:
             np.ndarray: The current video frame if available, None otherwise.
-        '''
+        """
+
         if self.digit:
             return self.digit.get_frame()
         return None
 
     # --- Public setters/actions ---
     def set_stream(self, index):
-        '''
+        """
         Set the stream mode, fps, and resolution based on the index of the chosen
         stream string from the combobox.
+
         Args:
             index (int): The index of the selected stream string in the combobox.
         Returns:
             bool: True if the stream was set successfully, False otherwise.
-        '''
+        """
+
         if self.digit:
             try:
                 stream_mode = self.mode_options[index]
@@ -191,13 +214,15 @@ class DigitController:
         return False
 
     def set_intensity(self, value):
-        '''
+        """
         Set the intensity (value should be between min and max intensity).
+
         Args:
             value (int): The intensity value to set.
         Returns:
             bool: True if the intensity was set successfully, False otherwise.
-        '''
+        """
+
         if self.digit:
             try:
                 # Ensure value is within bounds
@@ -213,7 +238,8 @@ class DigitController:
         return False
 
     def disconnect(self):
-        '''Disconnect the DIGIT device.'''
+        """Disconnect the DIGIT device."""
+
         if self.digit:
             try:
                 self.digit.disconnect()
@@ -222,11 +248,13 @@ class DigitController:
 
     # --- Status/check methods ---
     def is_connected(self):
-        '''
+        """
         Check if the DIGIT device is connected.
+
         Returns:
             bool: True if connected, False otherwise.
-        '''
+        """
+
         if DigitHandler.find_digit(self.serial):
             return True
         return False
