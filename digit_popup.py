@@ -1,10 +1,10 @@
-import tkinter as tk
-
 '''
 Author: Gemma McLean
 Date: June 2025
 A class for creating a popup window in a Tkinter application.
 '''
+
+import tkinter as tk
 
 
 class DigitPopup(tk.Toplevel):

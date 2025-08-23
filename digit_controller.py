@@ -1,11 +1,11 @@
-from digit_interface.digit import Digit
-from digit_interface.digit_handler import DigitHandler
-
 '''
 Author: Gemma McLean
 Date: June 2025
 A controller class for managing the DIGIT device connection and operations.
 '''
+
+from digit_interface.digit import Digit
+from digit_interface.digit_handler import DigitHandler
 
 
 class DigitController:

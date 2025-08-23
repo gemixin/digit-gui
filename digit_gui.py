@@ -1,3 +1,9 @@
+'''
+Author: Gemma McLean
+Date: May 2025
+A class for creating a user interface for the DIGIT device using Tkinter.
+'''
+
 import tkinter as tk
 from tkinter import ttk, filedialog
 from PIL import Image, ImageTk
@@ -7,11 +13,6 @@ from digit_popup import DigitPopup
 import json
 import os
 
-'''
-Author: Gemma McLean
-Date: May 2025
-A class for creating a user interface for the DIGIT device using Tkinter.
-'''
 
 # Constants
 PADDING = 10
