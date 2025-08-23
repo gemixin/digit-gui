@@ -602,6 +602,7 @@ class DigitGUI:
 
         Args:
             value (str): The value to validate.
+
         Returns:
             bool: True if valid, False otherwise.
         """
@@ -627,6 +628,7 @@ class DigitGUI:
 
         Args:
             value (str): The value to validate.
+
         Returns:
             bool: True if valid, False otherwise.
         """
@@ -652,6 +654,7 @@ class DigitGUI:
 
         Args:
             value (str): The value to validate.
+
         Returns:
             bool: True if valid, False otherwise.
         """
@@ -849,6 +852,7 @@ class DigitGUI:
 
         Args:
             num (int): The number to pad.
+
         Returns:
             str: The padded number as a string.
         """

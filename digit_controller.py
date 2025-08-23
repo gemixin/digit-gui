@@ -30,6 +30,7 @@ class DigitController:
     def _check_for_digits(self):
         """
         Check for connected DIGIT devices.
+
         Returns:
             list: A list of dictionaries containing DIGIT device information.
             None: If no DIGIT devices are found.
@@ -43,6 +44,7 @@ class DigitController:
     def _connect_to_digit(self):
         """
         Connect to the first available DIGIT device.
+
         Returns:
             tuple: A tuple containing the DIGIT instance and its serial number.
             (None, None): If no DIGIT devices are found or connection fails.
@@ -194,6 +196,7 @@ class DigitController:
 
         Args:
             index (int): The index of the selected stream string in the combobox.
+
         Returns:
             bool: True if the stream was set successfully, False otherwise.
         """
@@ -219,6 +222,7 @@ class DigitController:
 
         Args:
             value (int): The intensity value to set.
+
         Returns:
             bool: True if the intensity was set successfully, False otherwise.
         """
