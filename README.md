@@ -30,13 +30,12 @@
 
 2. **(Optional) Set up a virtual environment:** 
     ```bash
-    python3 -m venv venv
-    source venv/bin/activate
+    python3 -m venv .venv
+    source .venv/bin/activate
 
-3. **Install the required packages:**  
-    Tkinter is included with Python by default. Install the DIGIT interface library and Pillow:
+3. **Install required packages:**  
     ```bash
-    pip install -r requirements.txt
+    python3 -m pip install -r requirements.txt
 
 ## Running the GUI
 

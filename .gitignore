@@ -1,5 +1,7 @@
+.DS_Store
+.venv/
 __pycache__/
-venv/
+*.pyc
 .vscode/
 images/
 user_prefs.json
