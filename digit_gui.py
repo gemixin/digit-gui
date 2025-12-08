@@ -69,6 +69,7 @@ class DigitGUI:
         self.root.protocol('WM_DELETE_WINDOW', self.close_app)
 
     # --- Initialization & Setup ---
+
     def setup_gui(self):
         """Set up the main GUI components after a successful connection to DIGIT."""
 
@@ -414,6 +415,7 @@ class DigitGUI:
         self.root.destroy()
 
     # --- GUI State Management ---
+
     def enable_gui(self):
         """Enable interactive GUI elements."""
 
@@ -437,6 +439,7 @@ class DigitGUI:
         self.save_dir_button.configure(state='disabled')
 
     # --- Preferences ---
+
     def save_prefs(self):
         """Save user preferences to a JSON file."""
 
@@ -505,6 +508,7 @@ class DigitGUI:
             self.refresh_save_dir_entry()
 
     # --- Live Preview & Video ---
+
     def update_video_frame(self):
         """Update the video frame in the live preview."""
 
@@ -543,6 +547,7 @@ class DigitGUI:
         self.update_interval = 1000 // fps
 
     # --- User Interactions ---
+
     def on_intensity_slider_change(self, value):
         """
         Handle the slider change event to set the RGB intensity.
@@ -692,6 +697,7 @@ class DigitGUI:
         self.countdown_secs_spinbox.insert(0, self.countdown_secs)
 
     # --- Capture Logic ---
+    
     def start_capture(self):
         """Start capturing frames based on user settings."""
 
