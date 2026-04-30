@@ -25,7 +25,7 @@ class DigitPopup(tk.Toplevel):
 
         # Set the title and geometry of the popup
         self.title(title)
-        self.geometry('340x120')
+        self.geometry("340x120")
         self.transient(parent)
         self.lift()
         self.resizable(False, False)

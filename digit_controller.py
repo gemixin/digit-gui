@@ -54,19 +54,19 @@ class DigitController:
         if digits:
             try:
                 # Get the first digit's serial number
-                serial = digits[0]['serial']
+                serial = digits[0]["serial"]
                 # Create a Digit instance with the serial number
-                digit = Digit(serial, 'Single_Digit')
+                digit = Digit(serial, "Single_Digit")
                 # Connect to the DIGIT device
                 digit.connect()
-                print(f'Connected to DIGIT with serial number: {serial}')
+                print(f"Connected to DIGIT with serial number: {serial}")
                 # Return the connected Digit instance and its serial number
                 return digit, serial
             except Exception as e:
-                print(f'Failed to connect to DIGIT: {e}')
+                print(f"Failed to connect to DIGIT: {e}")
                 return None, None
         else:
-            print('No DIGIT devices found.')
+            print("No DIGIT devices found.")
             return None, None
 
     def _populate_stream_lists(self):
@@ -80,12 +80,12 @@ class DigitController:
             stream_dict = self.digit.STREAMS
             # Iterate through the STREAMS dictionary to populate the lists
             for mode, mode_info in stream_dict.items():
-                for _, fps_value in mode_info['fps'].items():
-                    stream_string = f'{mode} {fps_value}fps'
+                for _, fps_value in mode_info["fps"].items():
+                    stream_string = f"{mode} {fps_value}fps"
                     self.stream_strings.append(stream_string)
                     self.mode_options.append(mode)
                     self.fps_options.append(fps_value)
-                    self.resolutions.append(mode_info['resolution'])
+                    self.resolutions.append(mode_info["resolution"])
 
     # --- Public getters ---
     def get_stream_strings(self):
@@ -205,14 +205,14 @@ class DigitController:
             try:
                 stream_mode = self.mode_options[index]
                 fps = self.fps_options[index]
-                fps_text = f'{fps}fps'
-                fps_setting = Digit.STREAMS[stream_mode]['fps'][fps_text]
+                fps_text = f"{fps}fps"
+                fps_setting = Digit.STREAMS[stream_mode]["fps"][fps_text]
                 self.digit.set_fps(fps_setting)
                 res = self.resolutions[index]
-                self.digit.set_resolution({'resolution': res})
+                self.digit.set_resolution({"resolution": res})
                 return True
             except Exception as e:
-                print(f'Failed to set stream: {e}')
+                print(f"Failed to set stream: {e}")
                 return False
         return False
 
@@ -234,10 +234,10 @@ class DigitController:
                     self.digit.set_intensity(value)
                     return True
                 else:
-                    print(f'Intensity value {value} out of bounds.')
+                    print(f"Intensity value {value} out of bounds.")
                     return False
             except Exception as e:
-                print(f'Failed to set intensity: {e}')
+                print(f"Failed to set intensity: {e}")
                 return False
         return False
 
@@ -248,7 +248,7 @@ class DigitController:
             try:
                 self.digit.disconnect()
             except Exception as e:
-                print(f'Failed to disconnect DIGIT: {e}')
+                print(f"Failed to disconnect DIGIT: {e}")
 
     # --- Status/check methods ---
     def is_connected(self):
