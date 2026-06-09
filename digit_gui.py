@@ -715,8 +715,16 @@ class DigitGUI:
         # Always get the current save directory for this capture
         self.save_dir = self.get_save_dir()
 
+        # Check if the save directory is None
+        if self.save_dir is None:
+            # If it's None, it means a folder for this interaction already exists
+            self.capture_status_label.config(
+                text="Capture failed:\nInteraction folder already exists", bg=RED
+            )
+            # Reset after 2 seconds
+            self.root.after(2000, self.capture_complete_final)
         # Check user save directory exists
-        if not os.path.exists(self.save_dir):
+        elif not os.path.exists(self.save_dir):
             # If it does not exist, show an error message
             print(self.save_dir)
             self.capture_status_label.config(
@@ -769,9 +777,13 @@ class DigitGUI:
             padded_num = self.pad_number(self.interaction_num)
             # Get the path for the interaction folder we are going to create
             interaction_folder = f"{self.user_save_dir}/interaction_{padded_num}"
+            # Check if folder already exists, if it does, return None
+            # This is to avoid accidentally overwriting existing data
+            if os.path.exists(interaction_folder):
+                return None
             # Create the folder if it does not exist
             try:
-                os.makedirs(interaction_folder, exist_ok=True)
+                os.makedirs(interaction_folder, exist_ok=False)
             except Exception as e:
                 print(f"Error creating directory: {e}")
             # Set the save directory to the interaction folder
